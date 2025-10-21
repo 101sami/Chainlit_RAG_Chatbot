@@ -1,0 +1,14 @@
+ {
+    "name": "Mobile Network Security Chatbot",
+    "image": "mcr.microsoft.com/devcontainers/python:3.11",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-python.python"
+        ]
+      }
+    },
+    "forwardPorts": [8000],
+    "postCreateCommand": "pip install -r requirements-chainlit.txt",
+    "remoteUser": "vscode"
+  }
