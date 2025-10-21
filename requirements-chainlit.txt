@@ -1,0 +1,20 @@
+# Chainlit and essential dependencies
+chainlit>=1.0.0
+openai>=1.0.0
+python-dotenv>=1.0.0
+
+# Vector database and embeddings (for persistent RAG)
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# Document processing
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+
+# Text processing
+tiktoken>=0.4.0
+
+# Web scraping for Help Center integration
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
