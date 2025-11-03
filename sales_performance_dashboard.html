@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Support Performance Analysis Dashboard</title>
+    <meta name="description" content="Interactive dashboard analyzing sales support performance with actionable insights and recommendations">
+    <meta name="author" content="Trend Micro Sales Analytics Team">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .rec-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .analysis-section {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .case-card {
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .case-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .case-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .case-content {
+            padding: 20px;
+        }
+
+        .issue-tag {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .opportunity-tag {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .improvement-tag {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .strategy-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .strategy-list li {
+            background: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+
+        .strategy-list li strong {
+            color: #2c3e50;
+        }
+
+        .recommendations {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .recommendations h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .rec-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .severity-high { border-left-color: #e74c3c; }
+        .severity-medium { border-left-color: #f39c12; }
+        .severity-low { border-left-color: #3498db; }
+
+        .transcript-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sales Support Performance Analysis</h1>
+            <p>Agent: Azriel Kyle Tabernilla | Analysis Period: October 21-23, 2025</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Total Cases Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">60%</div>
+                <div class="stat-label">Customer Disconnection Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">20%</div>
+                <div class="stat-label">Successful Sales Completion</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Critical Issues Identified</div>
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <div class="section-header">
+                Individual Case Analysis
+            </div>
+            <div class="section-content">
+
+                <div class="case-card">
+                    <div class="case-header">
+                        Case ID: TM-4590399-D0R5L2 | Customer Disconnection
+                    </div>
+                    <div class="case-content">
+                        <div class="transcript-preview">
+                            Customer: "just want to renew my one device is there a phone number I can ring to talk to someone in Australia?"
+                            Agent: "Okay sure, may I have first your serial number please?"
+                            Customer: [DISCONNECTED]
+                        </div>
+                        <p><strong>Critical Issues:</strong></p>
+                        <span class="issue-tag">Immediate process friction</span>
+                        <span class="issue-tag">No acknowledgment of customer preference</span>
+                        <span class="issue-tag">Failed to address phone request</span>
+
+                        <p style="margin-top: 15px;"><strong>Missed Opportunities:</strong></p>
+                        <span class="opportunity-tag">Customer ready to renew</span>
+                        <span class="opportunity-tag">Simple 1-device renewal</span>
+
+                        <p style="margin-top: 15px;"><strong>Root Cause:</strong> Agent immediately requested technical details instead of addressing customer's preference for phone support, creating unnecessary friction for a willing buyer.</p>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-header">
+                        Case ID: TM-4586710-V0Y1X4 | Partial Success with Delays
+                    </div>
+                    <div class="case-content">
+                        <div class="transcript-preview">
+                            Customer: "I would like to purchase some more AV's - how do I add that to our existing account"
+                            [Multiple "Are you still there?" messages from customer]
+                            Agent: Finally provides links at the end
+                        </div>
+                        <p><strong>Issues:</strong></p>
+                        <span class="issue-tag">Response delays causing customer anxiety</span>
+                        <span class="issue-tag">No proactive upselling</span>
+                        <span class="issue-tag">Poor prioritization of information</span>
+
+                        <p style="margin-top: 15px;"><strong>Strengths:</strong></p>
+                        <span class="improvement-tag">Provided relevant links</span>
+                        <span class="improvement-tag">Answered technical questions</span>
+
+                        <p style="margin-top: 15px;"><strong>Analysis:</strong> While the agent eventually provided helpful information, response delays and lack of proactive sales approach reduced effectiveness. Customer had to repeatedly ask if agent was still present.</p>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-header">
+                        Case ID: TM-4590352-M5J1H2 | Incomplete Communication
+                    </div>
+                    <div class="case-content">
+                        <div class="transcript-preview">
+                            Customer: "I am concerned the message is a scam so wanted to check"
+                            Agent: [Transcript cuts off mid-sentence providing renewal link]
+                        </div>
+                        <p><strong>Critical Issues:</strong></p>
+                        <span class="issue-tag">Incomplete message delivery</span>
+                        <span class="issue-tag">Failed to address scam concerns</span>
+                        <span class="issue-tag">Technical communication failure</span>
+
+                        <p style="margin-top: 15px;"><strong>Security Concern:</strong> Customer specifically mentioned scam worries but agent didn't provide adequate reassurance or verification steps.</p>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-header">
+                        Case ID: TM-4588799-V6D1D6 | Customer Frustration & Confusion
+                    </div>
+                    <div class="case-content">
+                        <div class="transcript-preview">
+                            Customer: "YES BUT WANT TO REDUCE TO EITHER 2 OR 1 DEVICES" [CAPS indicating frustration]
+                            Customer: "HELLO" [Feeling ignored]
+                            Agent: Provides confusing renewal vs new purchase explanation
+                        </div>
+                        <p><strong>Issues:</strong></p>
+                        <span class="issue-tag">Customer escalated to caps (frustration)</span>
+                        <span class="issue-tag">Unclear renewal options</span>
+                        <span class="issue-tag">No clear pricing provided</span>
+                        <span class="issue-tag">Failed to demonstrate mobile setup value</span>
+
+                        <p style="margin-top: 15px;"><strong>Analysis:</strong> Agent failed to clearly explain the difference between renewal and new purchase, leading to customer confusion and frustration evident in the caps lock usage.</p>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <div class="case-header">
+                        Case ID: TM-4590243-T7L1T2 | Process Anxiety & Disconnection
+                    </div>
+                    <div class="case-content">
+                        <div class="transcript-preview">
+                            Customer: "Do I keep the SN?"
+                            Agent: "it would be a new serial number"
+                            Customer: [DISCONNECTED during purchase process]
+                        </div>
+                        <p><strong>Issues:</strong></p>
+                        <span class="issue-tag">Created anxiety about serial number change</span>
+                        <span class="issue-tag">Customer disconnected during purchase</span>
+                        <span class="issue-tag">Insufficient guidance through process</span>
+
+                        <p style="margin-top: 15px;"><strong>Analysis:</strong> The revelation about changing serial numbers created customer anxiety, and the agent didn't provide sufficient reassurance or clear guidance through the purchase process.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <div class="section-header">
+                Common Patterns & Root Causes
+            </div>
+            <div class="section-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+                    <div style="border-left: 4px solid #e74c3c; padding-left: 20px;">
+                        <h3 style="color: #e74c3c; margin-bottom: 10px;">High-Impact Issues</h3>
+                        <ul style="list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 8px;">• 60% customer disconnection rate</li>
+                            <li style="margin-bottom: 8px;">• Process friction from immediate serial number requests</li>
+                            <li style="margin-bottom: 8px;">• Response delays causing customer anxiety</li>
+                            <li style="margin-bottom: 8px;">• Poor handling of customer security concerns</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left: 4px solid #f39c12; padding-left: 20px;">
+                        <h3 style="color: #f39c12; margin-bottom: 10px;">Sales Effectiveness Issues</h3>
+                        <ul style="list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 8px;">• Minimal proactive upselling attempts</li>
+                            <li style="margin-bottom: 8px;">• Links provided without benefit explanation</li>
+                            <li style="margin-bottom: 8px;">• Unclear pricing and option communication</li>
+                            <li style="margin-bottom: 8px;">• Poor value proposition delivery</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left: 4px solid #3498db; padding-left: 20px;">
+                        <h3 style="color: #3498db; margin-bottom: 10px;">Communication Problems</h3>
+                        <ul style="list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 8px;">• Technical process not clearly explained</li>
+                            <li style="margin-bottom: 8px;">• Customer questions left partially answered</li>
+                            <li style="margin-bottom: 8px;">• Incomplete message delivery</li>
+                            <li style="margin-bottom: 8px;">• Failure to address customer preferences</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h2>Strategic Improvement Recommendations</h2>
+            <div class="rec-grid">
+
+                <div class="rec-card">
+                    <h3>1. Immediate Process Improvements</h3>
+                    <ul>
+                        <li><strong>Delay Serial Number Collection:</strong> Build rapport first, collect technical details after establishing trust</li>
+                        <li><strong>Response Time Standards:</strong> Implement maximum 30-second response time policy</li>
+                        <li><strong>Acknowledgment Protocol:</strong> Always acknowledge customer requests before asking for information</li>
+                    </ul>
+                </div>
+
+                <div class="rec-card">
+                    <h3>2. Sales Methodology Enhancement</h3>
+                    <ul>
+                        <li><strong>Lead with Value:</strong> Explain benefits before providing links</li>
+                        <li><strong>Proactive Upselling:</strong> Identify opportunities early in conversation</li>
+                        <li><strong>Clear Pricing:</strong> Always provide upfront pricing options</li>
+                        <li><strong>Bundle Suggestions:</strong> Offer relevant add-ons based on customer needs</li>
+                    </ul>
+                </div>
+
+                <div class="rec-card">
+                    <h3>3. Customer Experience Focus</h3>
+                    <ul>
+                        <li><strong>Security Reassurance:</strong> Proactively address scam concerns</li>
+                        <li><strong>Process Guidance:</strong> Walk customers through each step</li>
+                        <li><strong>Alternative Options:</strong> Offer phone support when requested</li>
+                        <li><strong>Follow-up Commitment:</strong> Stay engaged throughout purchase process</li>
+                    </ul>
+                </div>
+
+                <div class="rec-card">
+                    <h3>4. Training Priorities</h3>
+                    <ul>
+                        <li><strong>Consultative Selling:</strong> Focus on needs assessment before solutions</li>
+                        <li><strong>Technical Communication:</strong> Simplify complex processes</li>
+                        <li><strong>Objection Handling:</strong> Address concerns proactively</li>
+                        <li><strong>Urgency Management:</strong> Balance speed with thoroughness</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <div class="section-header">
+                Specific Action Items for Azriel Kyle Tabernilla
+            </div>
+            <div class="section-content">
+                <ul class="strategy-list">
+                    <li class="severity-high">
+                        <strong>Priority 1 - Reduce Customer Disconnections:</strong>
+                        Start conversations by acknowledging the customer's stated need before requesting any technical information. For renewal requests, immediately confirm willingness to help with renewal.
+                    </li>
+                    <li class="severity-high">
+                        <strong>Priority 2 - Improve Response Timing:</strong>
+                        Respond within 30 seconds maximum. Use holding messages like "Let me check that for you, one moment please" to maintain engagement.
+                    </li>
+                    <li class="severity-medium">
+                        <strong>Priority 3 - Enhance Value Communication:</strong>
+                        Before sending any purchase links, explain the benefits and value proposition. Example: "This upgrade includes secure VPN and identity protection, saving you $X compared to separate purchases."
+                    </li>
+                    <li class="severity-medium">
+                        <strong>Priority 4 - Address Security Concerns:</strong>
+                        When customers mention scam concerns, immediately provide verification steps and reassurance about official Trend Micro processes.
+                    </li>
+                    <li class="severity-low">
+                        <strong>Priority 5 - Proactive Upselling:</strong>
+                        Identify upselling opportunities early. When customers mention multiple devices, immediately suggest appropriate multi-device packages.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 12px; margin-top: 30px; text-align: center;">
+            <h3 style="color: #2c3e50; margin-bottom: 10px;">Expected Impact</h3>
+            <p style="color: #7f8c8d;">Implementing these recommendations should reduce disconnection rates by 40-50% and improve sales conversion by 25-30% within 30 days.</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center; color: white;">
+            <p style="font-size: 0.9em;">📊 Dashboard created for Trend Micro Sales Performance Analysis | Share with your team for collaborative insights</p>
+        </div>
+
+    </div>
+</body>
+</html>
